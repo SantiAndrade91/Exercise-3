@@ -31,6 +31,68 @@ private class BeerAPICalloutTest {
         List<Beer__c> results = [SELECT Name FROM Beer__c];
 		System.assertEquals(2, results.size(), 'The array should only contain 2 items.');
         System.assertEquals('Buzz', results[0].Name, 'The name of the beer does not match.');
-
     }   
+    
+    @isTest
+    static void testGetCalloutFailure() {
+        // Create the mock failure response based on a static resource
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('GetBeerResource');
+        mock.setStatusCode(400);
+        mock.setHeader('Content-Type', 'application/json;charset=UTF-8');
+        
+        // Associate the callout with a mock response
+        Test.setMock(HttpCalloutMock.class, mock);
+        
+        // Call method to test
+		Test.startTest();
+        BeerAPICallout.makeGetCallout();        
+        Test.stopTest();
+        
+        // Check results
+        List<Beer__c> results = [SELECT Name FROM Beer__c];
+		System.assertEquals(0, results.size(), 'The array should not contain any items.');
+    }
+    
+    @isTest
+    static void testGetCalloutFailure404() {
+        // Create the mock failure response based on a static resource
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('GetBeerResource');
+        mock.setStatusCode(404);
+        mock.setHeader('Content-Type', 'application/json;charset=UTF-8');
+        
+        // Associate the callout with a mock response
+        Test.setMock(HttpCalloutMock.class, mock);
+        
+        // Call method to test
+		Test.startTest();
+        BeerAPICallout.makeGetCallout();        
+        Test.stopTest();
+        
+        // Check results
+        List<Beer__c> results = [SELECT Name FROM Beer__c];
+		System.assertEquals(0, results.size(), 'The array should not contain any items.');
+    }
+    
+    @isTest
+    static void testGetCalloutFailure503() {
+        // Create the mock failure response based on a static resource
+        StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
+        mock.setStaticResource('GetBeerResource');
+        mock.setStatusCode(503);
+        mock.setHeader('Content-Type', 'application/json;charset=UTF-8');
+        
+        // Associate the callout with a mock response
+        Test.setMock(HttpCalloutMock.class, mock);
+        
+        // Call method to test
+		Test.startTest();
+        BeerAPICallout.makeGetCallout();        
+        Test.stopTest();
+        
+        // Check results
+        List<Beer__c> results = [SELECT Name FROM Beer__c];
+		System.assertEquals(0, results.size(), 'The array should not contain any items.');
+    }
 }

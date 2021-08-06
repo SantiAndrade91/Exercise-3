@@ -1,21 +1,27 @@
 public class BeerAPICallout {
-
+	
+    // PUNK API end point URL 
+    private static final String END_POINT_URL = 'https://api.punkapi.com/v2/beers?per_page=30&page=';
+    
     @future(callout=true)
     // Asynchronous processing
     public static void makeGetCallout() {
         Http http = new Http();
         HttpRequest request = new HttpRequest();
+        
+        // Obtain different beers on each request made
         Integer i = pageGenerator();
-        String endPointURL = 'https://api.punkapi.com/v2/beers?per_page=30&page=';
-        endPointURL = endPointURL + String.valueOf(i);
+        String endPointURL = END_POINT_URL + String.valueOf(i);
         System.debug(endPointURL);
+        
+        // Request the beers
         request.setEndpoint( endPointURL );
         request.setMethod('GET');
         HttpResponse response = http.send(request);
         
-        // If the request is successful, parse the JSON response.
         if (response.getStatusCode() == 200) {
-            
+        // If the request is successful, parse the JSON response.
+
             // List of Beers to insert into the database
             List<Beer__c> beersToInsert = new List<Beer__c>();
             
@@ -24,14 +30,11 @@ public class BeerAPICallout {
 			
             // Iterate over each beer retrieved from the API
             for (BeerAPI beer : result) {
-            
                 // Shorten the description to avoid longer strings (Limit = 150 characters).
-                if (beer.description.length() > 100) {
+                if (beer.description.length() > 150) {
                     beer.description = beer.description.abbreviate(150);
                 }
-                
                 // System.debug(beer);
-                
                 // Create a new Beer__c object and add it to the list to insert
                 Beer__c newBeer = new Beer__c();
                 newBeer.Name = beer.name;
@@ -47,7 +50,24 @@ public class BeerAPICallout {
                 insertBeers( beersToInsert );
                 System.debug('The list of beers from PUNK API was successfully upserted! Total: ' + beersToInsert.size());
             }
-        }        
+        
+        } else if (response.getStatusCode() == 400) {
+            
+            // If the request fails, a message is shown in the console.
+            System.debug('Error: Bad Request. A parameter in the request was passed without a value!');
+        
+        } else if (response.getStatusCode() == 404) {
+            
+            // Page not found
+            System.debug('Error: Not Found. The server can not find the requested resource.');
+        
+        } else if (response.getStatusCode() > 500) {
+            
+            // Server errors
+            System.debug('Server Error.');
+        }
+        
+        
 	}
     
     private static void insertBeers( List<Beer__c> beerList ) {
