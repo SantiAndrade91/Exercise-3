@@ -1,4 +1,4 @@
-public class BeerAPICallout {
+public with sharing class BeerAPICallout {
 	
     // PUNK API end point URL 
     private static final String END_POINT_URL = 'https://api.punkapi.com/v2/beers?per_page=30&page=';
@@ -70,34 +70,38 @@ public class BeerAPICallout {
         
 	}
     
+    // Method to insert new beers to the database
     private static void insertBeers( List<Beer__c> beerList ) {
-        // Retrieve an existing list of beers (if any)
+
         List<Beer__c> oldBeerList = new List<Beer__c>();
         List<Beer__c> newBeerList = new List<Beer__c>();
-            
-        // If there were previous beers, the method checks for duplicates and updates the database accordingly
+
+        // CRUD Validation
+        if (Beer__c.SObjectType.getDescribe().isAccessible() 
+            && Schema.SObjectType.Beer__c.fields.External_ID__c.isAccessible()
+           ) {
+        	// Retrieve an existing list of beers
+            oldBeerList = [SELECT External_ID__c FROM Beer__c WITH SECURITY_ENFORCED];
+        }
+          
         for ( Beer__c beer : beerList ) {
-            // Look for an existing beer, based on its ID
-			Beer__c oldBeer = new Beer__c();
-
-            Beer__c[] oldBeers = [SELECT External_ID__c, Name, Description__c, Tagline__c FROM Beer__c WHERE External_ID__c = :beer.External_ID__c];
-            if ( oldBeers.size() > 0 ) oldBeer = oldBeers[0];
-
-            if ( oldBeer.External_ID__c != null ) {
-                oldBeerList.add(oldBeer);
-            } else {
-                newBeerList.add(beer);
-            }
+            if ( !oldBeerList.contains(beer) ) { newBeerList.add(beer); }
         }
         
-        if (oldBeerList.size() > 0) update oldBeerList;
-        if (newBeerList.size() > 0) insert newBeerList;
+        // Make sure there are elements in the list to be inserted and CRUD validation
+        if ( newBeerList.size() > 0 
+             && Beer__c.SObjectType.getDescribe().isCreateable()
+        	) { 
+            insert newBeerList;
+        }
+
 	}
     
+    // Method to generate a new page for the URL in the API call
     private static Integer pageGenerator() {
 		Integer page = 0;
         Integer count = [SELECT count() FROM Beer__c];
-        if ( count >= 30) page = (count / 30);
+        if ( count >= 30) { page = (count / 30); }
 		page += 1;
         return page;
     }
