@@ -84,16 +84,32 @@ public with sharing class BeerAPICallout {
             oldBeerList = [SELECT External_ID__c FROM Beer__c WITH SECURITY_ENFORCED];
         }
           
+        // Check for existing beers based on their IDs
+        List<Decimal> oldBeerIds = new List<Decimal>();
+        for ( Beer__c oldBeer : oldBeerList ) {
+            oldBeerIds.add(oldBeer.External_ID__c);
+        }
+        
+        // If a beer is not in the database already, then add it to a new list to be inserted
+        for ( Beer__c beer : beerList ) {
+            if ( !oldBeerIds.contains(beer.External_ID__c) ) {
+                newBeerList.add(beer);
+            }
+        }
+        
+         /*
         for ( Beer__c beer : beerList ) {
             if ( !oldBeerList.contains(beer) ) { newBeerList.add(beer); }
         }
+		*/
         
         // Make sure there are elements in the list to be inserted and CRUD validation
         if ( newBeerList.size() > 0 
              && Beer__c.SObjectType.getDescribe().isCreateable()
-        	) { 
-            insert newBeerList;
+           ) { 
+               insert newBeerList;
         }
+                    
 
 	}
     

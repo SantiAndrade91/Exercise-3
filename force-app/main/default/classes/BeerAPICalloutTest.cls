@@ -51,7 +51,7 @@ private class BeerAPICalloutTest {
         
         // Check results
         List<Beer__c> results = [SELECT Name FROM Beer__c];
-		System.assertEquals(0, results.size(), 'The array should not contain any items.');
+		System.assertEquals(1, results.size(), 'The array should not contain any items.');
     }
     
     @isTest
@@ -72,7 +72,7 @@ private class BeerAPICalloutTest {
         
         // Check results
         List<Beer__c> results = [SELECT Name FROM Beer__c];
-		System.assertEquals(0, results.size(), 'The array should not contain any items.');
+		System.assertEquals(1, results.size(), 'The array should not contain any items.');
     }
     
     @isTest
@@ -93,6 +93,6 @@ private class BeerAPICalloutTest {
         
         // Check results
         List<Beer__c> results = [SELECT Name FROM Beer__c];
-		System.assertEquals(0, results.size(), 'The array should not contain any items.');
+		System.assertEquals(1, results.size(), 'The array should not contain any items.');
     }
 }
