@@ -55,8 +55,16 @@
 		<name>FlexiPage</name>
 	</types>
 	<types>
+		<members>Beer__c-Beer Layout</members>
+		<name>Layout</name>
+	</types>
+	<types>
 		<members>*</members>
 		<name>LightningComponentBundle</name>
+	</types>
+	<types>
+		<members>Beer__c.All</members>
+		<name>ListView</name>
 	</types>
 	<types>
 		<members>beer_api</members>
